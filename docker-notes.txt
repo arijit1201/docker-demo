@@ -1,0 +1,97 @@
+---------------------------------------------------------
+
+for docker desktop update :
+download the deb file
+sudo apt-get install ./docker-desktop-<version>-<arch>.deb
+
+then 
+
+systemctl --user stop docker-desktop
+systemctl --user start docker-desktop
+---------------------------------------------------------
+
+
+Docker container is the running environment of an image.
+
+Useful docker commands
+
+docker ps //list all running docker containers
+docker ps -a //list all active and inactive docker containers
+docker images //list all docker images
+docker start/stop <container-id>
+docker run -p6011:6379 -d redis:latest  
+//run docker container in detached mode and map a host port to it
+docker pull image-name:version-tag
+docker run -p6011:6379 -d redis:latest
+docker exec -it <name/id of container> /bin/bash
+
+
+docker network
+creates its isolated docker network where the containers are running in -> so two containers deployed in the same docker network can talk to each other using just the container name 
+
+docker network ls
+
+docker network create network-name
+ 
+use a mongodb docker image
+
+docker run -d --network mongo-network --name mongodb \                      
+        -e MONGO_INITDB_ROOT_USERNAME=admin \
+        -e MONGO_INITDB_ROOT_PASSWORD=password \
+        mongo
+        
+to star t mongo-express and have it connect to mongodb currently running
+
+docker run -d \
+    --network mongo-network \
+    --name mongo-express \
+    -p 8081:8081 \
+    -e ME_CONFIG_MONGODB_ADMINUSERNAME="admin" \
+    -e ME_CONFIG_MONGODB_ADMINPASSWORD="password" \
+    -e ME_CONFIG_MONGODB_SERVER="mongodb" \
+    mongo-express
+
+
+docker compose
+to run multiple containers from a single file
+docker compose -f docker-compose.yaml up
+
+
+-----
+Dockerfile basics:
+
+----------------------------> <---------------------------> <-----------------------------
+install node -----> FROM node:<tag>
+
+set env variables
+ENV MONGO_DB_USERNAME=admin \
+    MONGO_DB_PWD=password
+
+create /home/app folder (or any kind of linux command can be executed using RUN)
+
+RUN mkdir -p /home/app
+
+it is executed on the host machine to copy the current folder files from the host to the container
+
+COPY ./app /home/app
+
+# set default dir so that next commands executes in /home/app dir
+WORKDIR /home/app
+
+RUN npm install ---> executes npm install on the work directory
+
+executes an entry point linux command ( node server.js )
+CMD ["node", "server.js"]
+
+difference between cmd and run is that cmd is an entry point command
+
+build docker image from a docker file -> 
+docker build -t my-app:1.0 .   <--- the last dot refers to the current directory since the docker file is there
+
+DELETING A docker image
+
+docker rmi image-id
+
+-----------------Docker VOlumes---------------persisting data-------------
+
+
