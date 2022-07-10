@@ -94,4 +94,52 @@ docker rmi image-id
 
 -----------------Docker VOlumes---------------persisting data-------------
 
+3 volume types :
+Host VOlumes
+docker run -v /home/mount/data:/var/lib/mysql/data  // host directory:containerdirectory
 
+we can decide where on the host file system the referennce is made
+
+anonymous volumes :
+we do not mention the specific host directory -> for each container a folder is generated that gets mounted.
+docker run -v /var/lib/mysql/data
+
+named volumes: you can refeerence the volumes by name ( generally used in production )
+specify just the name of the folder of the host file system instead of the entire path
+docker run -v data:/var/lib/mysql/data
+
+
+docker volumes using docker compose :
+
+
+volumes:
+    db-data:/var/lib/mysql/data
+
+sample docker - compose file ( replace placeholders )
+version: '3'
+services:
+  docker-demo:
+    image: ${docker-registry}/docker-demo:latest
+    ports:
+      - 3000:3000
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo-data:/data/db
+  mongo-express:
+    image: mongo-express
+    restart: always # fixes MongoNetworkError when mongodb is not ready when mongo-express starts
+    ports:
+      - 8080:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=admin
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=password
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+volumes:
+  mongo-data:
+    driver: local
